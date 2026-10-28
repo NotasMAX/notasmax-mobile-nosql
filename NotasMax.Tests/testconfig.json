@@ -1,0 +1,16 @@
+{
+  "platformOptions": {
+    "Coverlet": {
+      "include": "[NotasMax]*",
+      "exclude": "[NotasMax.Tests]*",
+      "excludeByAttribute": "ExcludeFromCodeCoverage,ExcludeFromCodeCoverageAttribute,CompilerGeneratedAttribute",
+      "excludeByFile": "**/obj/**,**/*.g.cs,**/*.xsg.cs",
+      "format": "cobertura",
+      "useSourceLink": false,
+      "includeTestAssembly": false,
+      "skipAutoProps": true,
+      "deterministicReport": false,
+      "excludeAssembliesWithoutSources": "MissingAll"
+    }
+  }
+}
