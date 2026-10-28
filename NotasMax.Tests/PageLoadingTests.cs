@@ -43,6 +43,7 @@ public class PageLoadingTests
     [Trait("Category", "Baseline non-normative")]
     public async Task StudentProfileDisplaysCurrentSummaryAndEmptyState()
     {
+        using var culture = new TestCultureScope("pt-BR");
         var service = new FakeSimuladoService
         {
             DesempenhoAluno = new DesempenhoAluno
@@ -83,6 +84,7 @@ public class PageLoadingTests
     [Fact]
     public async Task ProfessorHomeDisplaysSummaryAndFiltersChartBySelectedYear()
     {
+        using var culture = new TestCultureScope("pt-BR");
         var year = DateTime.UtcNow.Year;
         var users = new FakeUsuarioService { User = new Usuario { Id = "teacher-1", Nome = "Carlos Silva" } };
         var simulations = new FakeSimuladoService

@@ -115,6 +115,7 @@ public class PageLogicTests
     [Trait("Category", "Baseline non-normative")]
     public void MeuDesempenhoDisplaysAverageAndExtremesFromCurrentResponse()
     {
+        using var culture = new TestCultureScope("pt-BR");
         var service = new FakeSimuladoService
         {
             DesempenhoAluno = new DesempenhoAluno

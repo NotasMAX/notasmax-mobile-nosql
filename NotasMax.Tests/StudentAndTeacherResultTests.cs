@@ -17,6 +17,7 @@ public class StudentAndTeacherResultTests
     [Fact]
     public void StudentSimulationDetailsDisplaysApiSummaryAndSubjects()
     {
+        using var culture = new TestCultureScope("pt-BR");
         var service = new FakeSimuladoService
         {
             DesempenhoBySimulado = new DesempenhoAlunoBySimulado
@@ -49,6 +50,7 @@ public class StudentAndTeacherResultTests
     [Trait("Category", "Baseline non-normative")]
     public async Task TeacherCanViewAStudentSimulationSummary()
     {
+        using var culture = new TestCultureScope("pt-BR");
         var simulations = new FakeSimuladoService
         {
             SimuladosAluno = new DesempenhoAlunoBySimulados

@@ -74,6 +74,7 @@ public class CalendarAndClassPerformanceTests
     [Fact]
     public async Task ClassPerformanceLoadsDistributionAndOrderedStudentResults()
     {
+        using var culture = new TestCultureScope("pt-BR");
         var response = new DesempenhoAlunoByDisciplina
         {
             SimuladosContainer = new DesempenhoAlunoByDisciplina.SimuladoContainer

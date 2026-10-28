@@ -13,6 +13,7 @@ public class ContentViewBindingTests
     [Fact]
     public void AlunoCardFormatsNameInitialsAndGradeFromBindingContext()
     {
+        using var culture = new TestCultureScope("pt-BR");
         var view = new AlunoItemContentView
         {
             BindingContext = new DesempenhoAlunoByDisciplina.DesempenhoAluno
@@ -76,6 +77,7 @@ public class ContentViewBindingTests
     [Fact]
     public void SimulationDisciplineCardDisplaysSubjectAndGrade()
     {
+        using var culture = new TestCultureScope("pt-BR");
         var view = new ExibirSimuladoItemContentView
         {
             BindingContext = new DesempenhoAlunoBySimulado.Disciplina { Nome = "História", Nota = 6.5 }
@@ -88,6 +90,7 @@ public class ContentViewBindingTests
     [Fact]
     public void SimulationCardFormatsNumberDateAndGrade()
     {
+        using var culture = new TestCultureScope("pt-BR");
         var view = new SimuladoItemContentView
         {
             BindingContext = new NotaSimulado { Numero = "3", Nota = 7.25, Data = new DateTime(2026, 6, 9) }
@@ -101,6 +104,7 @@ public class ContentViewBindingTests
     [Fact]
     public void RealizedAndUpcomingSimulationCardsUseTheirCurrentDisplayBranches()
     {
+        using var culture = new TestCultureScope("pt-BR");
         var realized = new MeuSimuladoItemContentView
         {
             BindingContext = new DesempenhoAlunoBySimulados.Simulado
@@ -129,6 +133,7 @@ public class ContentViewBindingTests
     [Fact]
     public void TurmaCardDisplaysItsAverageAndStudentCount()
     {
+        using var culture = new TestCultureScope("pt-BR");
         var view = new TurmaItemContentView
         {
             BindingContext = new TurmasByAnoAndProfessor.Turma { Serie = 2, Media = 7.4, QuantidadeAlunos = 31 }
