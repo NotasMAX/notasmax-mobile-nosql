@@ -1,3 +1,4 @@
 <Solution>
   <Project Path="NotasMax/NotasMax.csproj" />
+  <Project Path="NotasMax.Tests/NotasMax.Tests.csproj" />
 </Solution>

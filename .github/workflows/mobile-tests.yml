@@ -1,0 +1,56 @@
+name: Mobile tests and coverage
+
+on:
+  push:
+    branches:
+      - '**'
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  mobile-tests:
+    name: MAUI unit tests and 80% line coverage
+    runs-on: windows-2025
+    timeout-minutes: 60
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Set up .NET SDK
+        uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
+        with:
+          dotnet-version: 10.0.302
+          cache: true
+          cache-dependency-path: |
+            NotasMax.Tests/packages.lock.json
+            NotasMax/packages.lock.json
+
+      - name: Install .NET MAUI workload
+        run: dotnet workload install maui
+
+      - name: Restore locked test dependencies
+        run: dotnet restore .\NotasMax.Tests\NotasMax.Tests.csproj --locked-mode -p:TargetFramework=net10.0
+
+      - name: Run mobile tests and 80% line coverage gate
+        run: >-
+          dotnet test .\NotasMax.Tests\NotasMax.Tests.csproj
+          --framework net10.0
+          --no-restore
+          --coverlet
+          --coverlet-output-format cobertura
+          --coverlet-threshold 80
+          --coverlet-threshold-type line
+          --coverlet-threshold-stat total
+          --results-directory .\TestResults\mobile
+
+      - name: Upload mobile coverage report
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: mobile-coverage
+          path: TestResults/mobile/
+          if-no-files-found: ignore

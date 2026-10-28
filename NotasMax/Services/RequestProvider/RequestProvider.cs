@@ -8,13 +8,21 @@ namespace NotasMax.Services.RequestProvider
     public class RequestProvider : IRequestProvider
     {
 
-        private readonly Lazy<HttpClient> _httpClient =
-            new(() =>
+        private readonly Lazy<HttpClient> _httpClient;
+
+        public RequestProvider() : this(() => new HttpClient())
+        {
+        }
+
+        internal RequestProvider(Func<HttpClient> httpClientFactory)
+        {
+            _httpClient = new Lazy<HttpClient>(() =>
             {
-                var httpClient = new HttpClient();
+                var httpClient = httpClientFactory();
                 httpClient.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
                 return httpClient;
             });
+        }
 
         // Metodo auxiliador para obter ou criar o HttpClient com token de autenticação
         private HttpClient GetOrCreateHttpClient(string token)
