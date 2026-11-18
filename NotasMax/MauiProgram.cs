@@ -1,6 +1,8 @@
 ﻿using Microsoft.Extensions.Logging;
 using Microsoft.Maui.Handlers;
+using BarcodeScanning;
 using NotasMax.Services.NavigationService;
+using NotasMax.Services.Presencas;
 using NotasMax.Services.RequestProvider;
 using NotasMax.Services.Settings;
 using NotasMax.Services.Simulados;
@@ -9,6 +11,7 @@ using NotasMax.Views;
 using NotasMax.Views.Aluno;
 using NotasMax.Views.EsqueceuSenha;
 using NotasMax.Views.Professor;
+using NotasMax.ViewModels;
 using Syncfusion.Maui.Toolkit.Hosting;
 
 namespace NotasMax
@@ -20,6 +23,7 @@ namespace NotasMax
             var builder = MauiApp.CreateBuilder();
             builder
                 .UseMauiApp<App>()
+                .UseBarcodeScanning()
                 .ConfigureSyncfusionToolkit()
                 .ConfigureFonts(fonts =>
                 {
@@ -63,6 +67,7 @@ namespace NotasMax
         {
             app.Services.AddSingleton<IRequestProvider, RequestProvider>();
             app.Services.AddSingleton<IUsuarioService, UsuarioService>();
+            app.Services.AddSingleton<IPresencaService, PresencaService>();
             app.Services.AddSingleton<ISettingsService, SettingsService>();
             app.Services.AddSingleton<INavigationService, NavigationService>();
             app.Services.AddSingleton<ISimuladoService, SimuladoService>();
@@ -80,6 +85,8 @@ namespace NotasMax
             app.Services.AddSingleton<PerfilView>();
             app.Services.AddSingleton<PerfilProfessorView>();
             app.Services.AddTransient<MinhasMateriasView>();
+            app.Services.AddTransient<LerQrCodeViewModel>();
+            app.Services.AddTransient<LerQrCodeView>();
             app.Services.AddTransient<DesempenhoAlunoView>();
             app.Services.AddTransient<DadosPessoaisAlunoView>();
             app.Services.AddTransient<InformarEmailView>();

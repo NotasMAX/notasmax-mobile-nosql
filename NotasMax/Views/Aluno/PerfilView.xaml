@@ -132,6 +132,25 @@
                 </Grid>
             </Border>
 
+            <!-- Botão: Ler QR Code -->
+            <Border Style="{StaticResource BorderShadow}">
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="LerQrCode_Tapped" />
+                </Border.GestureRecognizers>
+                <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
+                    <Image Grid.Column="0"
+                           Source="qr_code.png"
+                           Style="{StaticResource ImageIcon}" />
+                    <Label Grid.Column="1"
+                           Text="Ler QR Code"
+                           Style="{StaticResource LabelButton}"
+                           VerticalOptions="Center" />
+                    <Image Grid.Column="2"
+                           Source="arrow_right.png"
+                           Style="{StaticResource ImageIcon}" />
+                </Grid>
+            </Border>
+
             <!-- Botão: Sair -->
             <Border Style="{StaticResource BorderShadow}">
                 <Border.GestureRecognizers>

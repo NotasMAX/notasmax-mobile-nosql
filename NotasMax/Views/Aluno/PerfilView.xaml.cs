@@ -83,6 +83,11 @@ public partial class PerfilView : ContentPage
         await Shell.Current.GoToAsync("MinhasMaterias");
     }
 
+    private async void LerQrCode_Tapped(object sender, TappedEventArgs e)
+    {
+        await Shell.Current.GoToAsync("LerQrCode");
+    }
+
     private void Sair_Tapped(object sender, TappedEventArgs e)
     {
         _navigationService.NavigationAsync("Login?Logout=true", true);

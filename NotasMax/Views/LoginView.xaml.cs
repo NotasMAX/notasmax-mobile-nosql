@@ -4,6 +4,7 @@ using NotasMax.Services.NavigationService;
 using NotasMax.Services.Settings;
 using NotasMax.Services.Usuarios;
 using NotasMax.Views.EsqueceuSenha;
+using System.Diagnostics;
 using System.Net;
 
 namespace NotasMax.Views;
@@ -105,11 +106,13 @@ public partial class LoginView : ContentPage
         {
             await DisplayAlertAsync("Erro", "Requisição inválida. Verifique os campos.", "Ok");
         }
-        catch (HttpRequestException ex)
+        catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException)
         {
-            Console.WriteLine($"Erro: {ex.Message} \n\n{ex.InnerException?.Message}");
+#if DEBUG
+            Debug.WriteLine($"{ex.GetType().Name}: {ex.Message}");
+#endif
 
-            await DisplayAlertAsync("Erro", "Erro com o servidor, Tente novamente.", "Ok");
+            await DisplayAlertAsync("Erro", "Não foi possível conectar ao servidor. Verifique a conexão.", "Ok");
         }
 
         catch (Exception ex)

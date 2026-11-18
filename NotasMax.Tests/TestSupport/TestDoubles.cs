@@ -1,4 +1,5 @@
 using NotasMax.Models;
+using System.Net;
 using NotasMax.Models.Simulados;
 using NotasMax.Models.Usuarios;
 using NotasMax.Models.Usuarios.Response;
@@ -7,8 +8,10 @@ using NotasMax.Services.RequestProvider;
 using NotasMax.Services.Settings;
 using NotasMax.Services.Simulados;
 using NotasMax.Services.Usuarios;
+using NotasMax.Services.Presencas;
 using NotasMax.ViewModels;
 using Xunit;
+using NotasMax.Models.Presencas;
 
 namespace NotasMax.Tests.TestSupport;
 
@@ -138,6 +141,7 @@ public sealed class FakeSimuladoService : ISimuladoService
 public sealed class RecordingRequestProvider : IRequestProvider
 {
     public object? Response { get; set; }
+    public HttpStatusCode StatusCode { get; set; } = HttpStatusCode.OK;
     public List<RequestCall> Calls { get; } = new();
 
     public Task<TResult> GetAsync<TResult>(string uri, string token = "")
@@ -150,6 +154,24 @@ public sealed class RecordingRequestProvider : IRequestProvider
     {
         Calls.Add(new RequestCall("POST", uri, token, data));
         return Task.FromResult((TResult)Response!);
+    }
+
+    public Task<(HttpStatusCode StatusCode, TResult? Data)> PostWithStatusAsync<TResult, TSend>(string uri, TSend data, string token = "")
+    {
+        Calls.Add(new RequestCall("POST_WITH_STATUS", uri, token, data));
+        return Task.FromResult((StatusCode, (TResult?)Response));
+    }
+}
+
+public sealed class FakePresencaService : IPresencaService
+{
+    public ResultadoPresenca Resultado { get; set; } = new() { Status = StatusPresenca.Sucesso };
+    public int CallCount { get; private set; }
+
+    public Task<ResultadoPresenca> RegistrarPresenca(string tokenQr)
+    {
+        CallCount++;
+        return Task.FromResult(Resultado);
     }
 }
 
