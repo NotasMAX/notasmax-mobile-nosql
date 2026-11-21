@@ -1,4 +1,5 @@
 using NotasMax.Models;
+using System.Net;
 using NotasMax.Models.Simulados;
 using NotasMax.Models.Usuarios;
 using NotasMax.Models.Usuarios.Response;
@@ -138,6 +139,7 @@ public sealed class FakeSimuladoService : ISimuladoService
 public sealed class RecordingRequestProvider : IRequestProvider
 {
     public object? Response { get; set; }
+    public HttpStatusCode StatusCode { get; set; } = HttpStatusCode.OK;
     public List<RequestCall> Calls { get; } = new();
 
     public Task<TResult> GetAsync<TResult>(string uri, string token = "")
@@ -151,6 +153,11 @@ public sealed class RecordingRequestProvider : IRequestProvider
         Calls.Add(new RequestCall("POST", uri, token, data));
         return Task.FromResult((TResult)Response!);
     }
-}
 
+    public Task<(HttpStatusCode StatusCode, TResult? Data)> PostWithStatusAsync<TResult, TSend>(string uri, TSend data, string token = "")
+    {
+        Calls.Add(new RequestCall("POST_WITH_STATUS", uri, token, data));
+        return Task.FromResult((StatusCode, (TResult?)Response));
+    }
+}
 public sealed record RequestCall(string Method, string Uri, string Token, object? Payload);

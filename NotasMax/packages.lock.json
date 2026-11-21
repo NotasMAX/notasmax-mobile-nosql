@@ -2,6 +2,15 @@
   "version": 1,
   "dependencies": {
     "net10.0": {
+      "BarcodeScanning.Native.Maui": {
+        "type": "Direct",
+        "requested": "[3.1.0, )",
+        "resolved": "3.1.0",
+        "contentHash": "NaTOalXhkfR4fy83cVogvrOOtZIA7SAt42Q3NLA5+t4TQSyeEFAat+UihQOi3+SNJPuuv4F1BpGS5wTAnki7UA==",
+        "dependencies": {
+          "Microsoft.Maui.Controls": "10.0.20"
+        }
+      },
       "CommunityToolkit.Mvvm": {
         "type": "Direct",
         "requested": "[8.4.2, )",

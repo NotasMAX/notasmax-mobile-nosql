@@ -54,6 +54,7 @@ namespace NotasMax
             Routing.RegisterRoute("Materia", typeof(ExibirMateriaView));
             Routing.RegisterRoute("MinhasMaterias", typeof(MinhasMateriasView));
             Routing.RegisterRoute("DadosPessoaisAluno", typeof(DadosPessoaisAlunoView));
+            Routing.RegisterRoute("LerQrCode", typeof(LerQrCodeView));
             Routing.RegisterRoute("informaremail", typeof(InformarEmailView));
             Routing.RegisterRoute("informarcodigo", typeof(InformarCodigoRecuperacaoView));
             Routing.RegisterRoute("novasenha", typeof(NovaSenhaView));

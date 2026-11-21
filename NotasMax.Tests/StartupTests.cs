@@ -1,5 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 using NotasMax.Services.NavigationService;
+using NotasMax.Services.Presencas;
 using NotasMax.Services.RequestProvider;
 using NotasMax.Services.Settings;
 using NotasMax.Services.Simulados;
@@ -51,6 +52,7 @@ public class StartupTests
 
         Assert.IsType<RequestProvider>(app.Services.GetRequiredService<IRequestProvider>());
         Assert.IsType<UsuarioService>(app.Services.GetRequiredService<IUsuarioService>());
+        Assert.IsType<PresencaService>(app.Services.GetRequiredService<IPresencaService>());
         Assert.IsType<SettingsService>(app.Services.GetRequiredService<ISettingsService>());
         Assert.IsAssignableFrom<INavigationService>(app.Services.GetRequiredService<INavigationService>());
         Assert.IsType<SimuladoService>(app.Services.GetRequiredService<ISimuladoService>());
