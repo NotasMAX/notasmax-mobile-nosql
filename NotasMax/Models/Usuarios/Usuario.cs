@@ -16,6 +16,9 @@ namespace NotasMax.Models.Usuarios
         [JsonPropertyName("tipo_usuario")]
         public string? TipoUsuario { get; set; }
 
+        [JsonPropertyName("usa_senha_inicial")]
+        public bool UsaSenhaInicial { get; set; }
+
         [JsonPropertyName("telefone_responsavel")]
         public string? TelefoneResponsavel { get; set; }
         

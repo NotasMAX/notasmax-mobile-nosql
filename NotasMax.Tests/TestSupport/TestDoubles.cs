@@ -67,12 +67,17 @@ public sealed class FakeUsuarioService : IUsuarioService
 {
     public Usuario User { get; set; } = new();
     public UserToken TokenResponse { get; set; } = new();
+    public List<UsuarioAuth> AuthenticationRequests { get; } = new();
     public ForgotPasswordResponse ForgotPasswordResponse { get; set; } = new();
     public ResetPasswordResponse ResetPasswordResponse { get; set; } = new();
     public Exception? ExceptionToThrow { get; set; }
 
     public Task<Usuario> Login(Usuario usuario) => Return(User);
-    public Task<UserToken> Authenticate(UsuarioAuth auth) => Return(TokenResponse);
+    public Task<UserToken> Authenticate(UsuarioAuth auth)
+    {
+        AuthenticationRequests.Add(auth);
+        return Return(TokenResponse);
+    }
     public Task<Usuario> GetUsuarioById(string id, string token) => Return(User);
     public Task<ForgotPasswordResponse> ForgotPassword(string email) => Return(ForgotPasswordResponse);
     public Task<ResetPasswordResponse> ResetPassword(string token, string novaSenha) => Return(ResetPasswordResponse);
