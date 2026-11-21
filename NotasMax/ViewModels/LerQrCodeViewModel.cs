@@ -231,13 +231,12 @@ public partial class LerQrCodeViewModel : ObservableObject
             await _navigationService.NavigationAsync("Login?Logout=true", absolute: true);
             
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             Estado = EstadoLeituraQrCode.ErroServidor;
             Titulo = "Não foi possível registrar a presença. Tente novamente em instantes.";
             Mensagem = Titulo;
             Detalhe = string.Empty;
-            Console.WriteLine($"Erro ao registrar presença: {ex.Message}");
         }
         finally
         {
