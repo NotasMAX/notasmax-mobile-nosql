@@ -48,7 +48,7 @@ public class CalendarAndClassPerformanceTests
         var specialDays = calendar.MonthView.GetType().GetProperty("SpecialDayPredicate")!.GetValue(calendar.MonthView) as Delegate;
         Assert.NotNull(specialDays);
         Assert.IsType<CalendarIconDetails>(specialDays!.DynamicInvoke(objectiveDay));
-        Assert.IsType<CalendarIconDetails>(specialDays.DynamicInvoke(essayDay));
+        Assert.IsType<CalendarIconDetails>(specialDays.DynamicInvoke(emptyDay));
         Assert.Null(specialDays.DynamicInvoke(emptyDay));
         Assert.Single(service.Calls);
         Assert.Equal("GetCalendarioByAluno", service.Calls[0].Method);
