@@ -25,6 +25,7 @@ public class CalendarAndClassPerformanceTests
         var today = DateTime.Today;
         var objectiveDay = new DateTime(today.Year, today.Month, Math.Min(8, DateTime.DaysInMonth(today.Year, today.Month)));
         var essayDay = new DateTime(today.Year, today.Month, Math.Min(18, DateTime.DaysInMonth(today.Year, today.Month)));
+        var emptyDay = new DateTime(today.Year, today.Month, 13);
         var service = new FakeSimuladoService
         {
             Calendario = new CalendarioByAluno
@@ -48,7 +49,7 @@ public class CalendarAndClassPerformanceTests
         Assert.NotNull(specialDays);
         Assert.IsType<CalendarIconDetails>(specialDays!.DynamicInvoke(objectiveDay));
         Assert.IsType<CalendarIconDetails>(specialDays.DynamicInvoke(essayDay));
-        Assert.Null(specialDays.DynamicInvoke(today.AddDays(-2)));
+        Assert.Null(specialDays.DynamicInvoke(emptyDay));
         Assert.Single(service.Calls);
         Assert.Equal("GetCalendarioByAluno", service.Calls[0].Method);
 
