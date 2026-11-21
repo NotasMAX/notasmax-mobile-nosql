@@ -150,6 +150,88 @@ public class LerQrCodeViewModelTests
     }
 
     [Fact]
+    public void EstadosDePermissao_EstadosDerivadosDevemRefletirCamera()
+    {
+        var viewModel = CriarViewModel(new FakePresencaService());
+
+        viewModel.PermissaoNegada();
+        Assert.True(viewModel.IsPermissaoNegada);
+        Assert.False(viewModel.CameraAtiva);
+        Assert.True(viewModel.LeituraPausada);
+
+        viewModel.IniciarSolicitacaoPermissao();
+        Assert.True(viewModel.IsSolicitandoPermissao);
+        Assert.False(viewModel.CameraAtiva);
+
+        viewModel.PermissaoConcedida();
+        Assert.True(viewModel.IsCameraVisivel);
+        Assert.True(viewModel.CameraAtiva);
+        Assert.False(viewModel.LeituraPausada);
+
+        viewModel.DesativarCamera();
+        Assert.False(viewModel.CameraAtiva);
+        Assert.True(viewModel.LeituraPausada);
+    }
+
+    [Fact]
+    public async Task ProcessarLeituraAsync_QuandoSessaoExpirar_DeveIrParaLogin()
+    {
+        var service = new FakePresencaService
+        {
+            Resultado = new ResultadoPresenca { Status = StatusPresenca.SessaoExpirada }
+        };
+        var navigation = new FakeNavigationService();
+        var viewModel = new LerQrCodeViewModel(service, navigation);
+        viewModel.PermissaoConcedida();
+
+        await viewModel.ProcessarLeituraAsync(TokenValido);
+
+        Assert.Single(navigation.Navigations);
+        Assert.Equal("Login?Logout=true", navigation.Navigations[0].Route);
+        Assert.True(navigation.Navigations[0].Absolute);
+    }
+
+    [Fact]
+    public async Task ProcessarLeituraAsync_QuandoHaSucessoComSimulado_DeveExibirDetalhes()
+    {
+        var service = new FakePresencaService
+        {
+            Resultado = new ResultadoPresenca
+            {
+                Status = StatusPresenca.Sucesso,
+                Mensagem = "Presença registrada!",
+                Simulado = new SimuladoPresencaResponse { Numero = 7, Tipo = "ENEM" }
+            }
+        };
+        var viewModel = CriarViewModel(service);
+        viewModel.PermissaoConcedida();
+
+        await viewModel.ProcessarLeituraAsync(TokenValido);
+
+        Assert.True(viewModel.IsSucesso);
+        Assert.Equal("Simulado 7 • ENEM", viewModel.Mensagem);
+        Assert.False(viewModel.IsCameraVisivel);
+    }
+
+    [Fact]
+    public void PropriedadesDerivadasDevemRefletirEstadoDeLeitura()
+    {
+        var viewModel = CriarViewModel(new FakePresencaService());
+
+        viewModel.PermissaoNegada();
+        Assert.True(viewModel.IsPermissaoNegada);
+
+        viewModel.PermissaoConcedida();
+        Assert.True(viewModel.IsCameraVisivel);
+        Assert.False(viewModel.IsErro);
+        Assert.False(viewModel.PodeLerOutroQr);
+        Assert.False(viewModel.PodeTentarNovamente);
+
+        viewModel.TentarNovamenteCommand.Execute(null);
+        Assert.True(viewModel.IsCameraVisivel);
+    }
+
+    [Fact]
     public async Task LerNovamente_DeveReativarLeituraAposErro()
     {
         var service = new FakePresencaService
