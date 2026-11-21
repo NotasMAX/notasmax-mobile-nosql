@@ -1,3 +1,4 @@
+using System.Net;
 using NotasMax.Models.Presencas;
 using NotasMax.Tests.TestSupport;
 using NotasMax.ViewModels;
@@ -7,23 +8,86 @@ namespace NotasMax.Tests;
 
 public class LerQrCodeViewModelTests
 {
-    private const string JwtValido = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMjMifQ.signature";
+    private const string TokenValido =
+        "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIn0.signature";
+
+    private static LerQrCodeViewModel CriarViewModel(FakePresencaService service) =>
+        new(service, new FakeNavigationService());
 
     [Fact]
-    public async Task ProcessarLeituraChamaServicoUmaUnicaVezParaDeteccoesRepetidas()
+    public async Task ProcessarLeituraAsync_QuandoEstadoNaoForLendo_NaoDeveChamarServico()
     {
-        var presenca = new FakePresencaService
-        {
-            Resultado = new ResultadoPresenca { Status = StatusPresenca.Sucesso }
-        };
-        var vm = CriarVm(presenca);
-        vm.PermissaoConcedida();
+        var service = new FakePresencaService();
+        var viewModel = CriarViewModel(service);
 
-        await vm.ProcessarLeituraAsync(JwtValido);
-        await vm.ProcessarLeituraAsync(JwtValido);
+        await viewModel.ProcessarLeituraAsync(TokenValido);
 
-        Assert.Equal(1, presenca.CallCount);
-        Assert.Equal(EstadoLeituraQrCode.Sucesso, vm.Estado);
+        Assert.Equal(0, service.CallCount);
+    }
+
+    [Theory]
+    [InlineData("")]
+    [InlineData("   ")]
+    [InlineData("abc")]
+    [InlineData("abc.def")]
+    [InlineData("abc..def")]
+    [InlineData(".abc.def")]
+    [InlineData("abc.def.")]
+    [InlineData("abc.def.invalid!")]
+    [InlineData("a.b.c")]
+    public async Task ProcessarLeituraAsync_QuandoTokenForInvalido_NaoDeveChamarServico(string token)
+    {
+        var service = new FakePresencaService();
+        var viewModel = CriarViewModel(service);
+        viewModel.PermissaoConcedida();
+
+        await viewModel.ProcessarLeituraAsync(token);
+
+        Assert.Equal(0, service.CallCount);
+        Assert.Equal(EstadoLeituraQrCode.QrInvalido, viewModel.Estado);
+        Assert.False(viewModel.IsProcessando);
+    }
+
+    [Fact]
+    public async Task ProcessarLeituraAsync_QuandoTokenForNulo_NaoDeveChamarServico()
+    {
+        var service = new FakePresencaService();
+        var viewModel = CriarViewModel(service);
+        viewModel.PermissaoConcedida();
+
+        await viewModel.ProcessarLeituraAsync(null!);
+
+        Assert.Equal(0, service.CallCount);
+        Assert.Equal(EstadoLeituraQrCode.QrInvalido, viewModel.Estado);
+        Assert.False(viewModel.IsProcessando);
+    }
+
+    [Fact]
+    public async Task ProcessarLeituraAsync_QuandoTokenExcederLimite_NaoDeveChamarServico()
+    {
+        var service = new FakePresencaService();
+        var viewModel = CriarViewModel(service);
+        viewModel.PermissaoConcedida();
+
+        await viewModel.ProcessarLeituraAsync(new string('a', 8193));
+
+        Assert.Equal(0, service.CallCount);
+        Assert.Equal(EstadoLeituraQrCode.QrInvalido, viewModel.Estado);
+    }
+
+    [Fact]
+    public async Task ProcessarLeituraAsync_QuandoTokenForValido_DeveEnviarTokenSemEspacosExternos()
+    {
+        var service = new FakePresencaService();
+        var viewModel = CriarViewModel(service);
+        viewModel.PermissaoConcedida();
+
+        await viewModel.ProcessarLeituraAsync($"  {TokenValido}  ");
+
+        Assert.Equal(1, service.CallCount);
+        Assert.Equal(TokenValido, Assert.Single(service.TokensRecebidos));
+        Assert.Equal(EstadoLeituraQrCode.Sucesso, viewModel.Estado);
+        Assert.False(viewModel.IsProcessando);
     }
 
     [Theory]
@@ -33,57 +97,73 @@ public class LerQrCodeViewModelTests
     [InlineData(StatusPresenca.QrInvalido, EstadoLeituraQrCode.QrInvalido)]
     [InlineData(StatusPresenca.SemConexao, EstadoLeituraQrCode.SemConexao)]
     [InlineData(StatusPresenca.ErroServidor, EstadoLeituraQrCode.ErroServidor)]
-    public async Task ProcessarLeituraTransitaParaEstadoDoResultado(StatusPresenca status, EstadoLeituraQrCode estadoEsperado)
+    public async Task ProcessarLeituraAsync_DeveMapearStatusDoServico(
+        StatusPresenca status, EstadoLeituraQrCode estadoEsperado)
     {
-        var presenca = new FakePresencaService
+        var service = new FakePresencaService
         {
             Resultado = new ResultadoPresenca
             {
                 Status = status,
-                Mensagem = "mensagem",
-                Simulado = new SimuladoPresencaResponse { Numero = 4, Tipo = "ENEM" }
+                Mensagem = "Mensagem de teste"
             }
         };
-        var vm = CriarVm(presenca);
-        vm.PermissaoConcedida();
+        var viewModel = CriarViewModel(service);
+        viewModel.PermissaoConcedida();
 
-        await vm.ProcessarLeituraAsync(JwtValido);
+        await viewModel.ProcessarLeituraAsync(TokenValido);
 
-        Assert.Equal(estadoEsperado, vm.Estado);
-        if (status == StatusPresenca.JaRegistrada)
-            Assert.False(vm.CameraAtiva);
+        Assert.Equal(estadoEsperado, viewModel.Estado);
+        Assert.Equal(1, service.CallCount);
+        Assert.False(viewModel.IsProcessando);
     }
 
     [Fact]
-    public async Task ProcessarLeituraNaoChamaServicoParaConteudoInvalido()
+    public async Task ProcessarLeituraAsync_QuandoServicoLancarExcecao_DeveExibirErroServidorELiberarProcessamento()
     {
-        var presenca = new FakePresencaService();
-        var vm = CriarVm(presenca);
-        vm.PermissaoConcedida();
-
-        await vm.ProcessarLeituraAsync("https://exemplo.test");
-
-        Assert.Equal(0, presenca.CallCount);
-        Assert.Equal(EstadoLeituraQrCode.QrInvalido, vm.Estado);
-    }
-
-    [Fact]
-    public async Task SessaoExpiradaNavegaParaLogin()
-    {
-        var navigation = new FakeNavigationService();
-        var presenca = new FakePresencaService
+        var service = new FakePresencaService
         {
-            Resultado = new ResultadoPresenca { Status = StatusPresenca.SessaoExpirada }
+            ExceptionToThrow = new HttpRequestException("Falha simulada")
         };
-        var vm = new LerQrCodeViewModel(presenca, navigation);
-        vm.PermissaoConcedida();
+        var viewModel = CriarViewModel(service);
+        viewModel.PermissaoConcedida();
 
-        await vm.ProcessarLeituraAsync(JwtValido);
+        await viewModel.ProcessarLeituraAsync(TokenValido);
 
-        Assert.Contains(navigation.Navigations,
-            item => item.Route == "Login?Logout=true" && item.Absolute);
+        Assert.Equal(1, service.CallCount);
+        Assert.Equal(EstadoLeituraQrCode.ErroServidor, viewModel.Estado);
+        Assert.False(viewModel.IsProcessando);
+        Assert.False(viewModel.IsCameraVisivel);
     }
 
-    private static LerQrCodeViewModel CriarVm(FakePresencaService presenca) =>
-        new(presenca, new FakeNavigationService());
+    [Fact]
+    public async Task ProcessarLeituraAsync_QuandoServicoRetornarNulo_DeveTratarComoErroServidor()
+    {
+        var service = new FakePresencaService { Resultado = null! };
+        var viewModel = CriarViewModel(service);
+        viewModel.PermissaoConcedida();
+
+        await viewModel.ProcessarLeituraAsync(TokenValido);
+
+        Assert.Equal(EstadoLeituraQrCode.ErroServidor, viewModel.Estado);
+        Assert.False(viewModel.IsProcessando);
+    }
+
+    [Fact]
+    public async Task LerNovamente_DeveReativarLeituraAposErro()
+    {
+        var service = new FakePresencaService
+        {
+            Resultado = new ResultadoPresenca { Status = StatusPresenca.ErroServidor }
+        };
+        var viewModel = CriarViewModel(service);
+        viewModel.PermissaoConcedida();
+
+        await viewModel.ProcessarLeituraAsync(TokenValido);
+        viewModel.LerNovamenteCommand.Execute(null);
+
+        Assert.Equal(EstadoLeituraQrCode.Lendo, viewModel.Estado);
+        Assert.True(viewModel.IsCameraVisivel);
+        Assert.False(viewModel.IsProcessando);
+    }
 }

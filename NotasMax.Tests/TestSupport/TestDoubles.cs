@@ -8,10 +8,8 @@ using NotasMax.Services.RequestProvider;
 using NotasMax.Services.Settings;
 using NotasMax.Services.Simulados;
 using NotasMax.Services.Usuarios;
-using NotasMax.Services.Presencas;
 using NotasMax.ViewModels;
 using Xunit;
-using NotasMax.Models.Presencas;
 
 namespace NotasMax.Tests.TestSupport;
 
@@ -162,17 +160,4 @@ public sealed class RecordingRequestProvider : IRequestProvider
         return Task.FromResult((StatusCode, (TResult?)Response));
     }
 }
-
-public sealed class FakePresencaService : IPresencaService
-{
-    public ResultadoPresenca Resultado { get; set; } = new() { Status = StatusPresenca.Sucesso };
-    public int CallCount { get; private set; }
-
-    public Task<ResultadoPresenca> RegistrarPresenca(string tokenQr)
-    {
-        CallCount++;
-        return Task.FromResult(Resultado);
-    }
-}
-
 public sealed record RequestCall(string Method, string Uri, string Token, object? Payload);

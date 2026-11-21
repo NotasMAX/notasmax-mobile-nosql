@@ -172,9 +172,11 @@ public partial class LerQrCodeViewModel : ObservableObject
         Mensagem = "Registrando presença...";
         Detalhe = string.Empty;
 
-        var resultado = await _presencaService.RegistrarPresenca(conteudo.Trim());
+        try
+        {
+            var resultado = await _presencaService.RegistrarPresenca(conteudo.Trim());
 
-        switch (resultado.Status)
+            switch (resultado.Status)
         {
             case StatusPresenca.Sucesso:
                 Estado = EstadoLeituraQrCode.Sucesso;
@@ -227,8 +229,20 @@ public partial class LerQrCodeViewModel : ObservableObject
 
         if (resultado.Status == StatusPresenca.SessaoExpirada)
             await _navigationService.NavigationAsync("Login?Logout=true", absolute: true);
-
-        _processando = false;
+            
+        }
+        catch (Exception ex)
+        {
+            Estado = EstadoLeituraQrCode.ErroServidor;
+            Titulo = "Não foi possível registrar a presença. Tente novamente em instantes.";
+            Mensagem = Titulo;
+            Detalhe = string.Empty;
+            Console.WriteLine($"Erro ao registrar presença: {ex.Message}");
+        }
+        finally
+        {
+            _processando = false;
+        }    
     }
 
     public void DesativarCamera()
