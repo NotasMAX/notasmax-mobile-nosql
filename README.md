@@ -12,7 +12,7 @@ A suíte `NotasMax.Tests` executa no target neutro `net10.0`; ela não inicia em
 Pré-requisitos: .NET SDK 10.0.302 (ou patch posterior do mesmo feature band, conforme `global.json`) e workload .NET MAUI. No Windows, instale o workload com `dotnet workload install maui`.
 
 ```powershell
-dotnet restore .\NotasMax.Tests\NotasMax.Tests.csproj --locked-mode -p:TargetFramework=net10.0
+dotnet restore .\NotasMax.Tests\NotasMax.Tests.csproj --locked-mode
 dotnet test .\NotasMax.Tests\NotasMax.Tests.csproj --framework net10.0 --no-restore --coverlet --coverlet-output-format cobertura --coverlet-threshold 80 --coverlet-threshold-type line --coverlet-threshold-stat total --results-directory .\TestResults\mobile
 ```
 
