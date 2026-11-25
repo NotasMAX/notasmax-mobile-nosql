@@ -31,7 +31,9 @@ public partial class AlunoItemContentView : ContentView
         await Shell.Current.GoToAsync("DesempenhoAluno", new Dictionary<string, object>
         {
             { "AlunoId", aluno.Id },
-            { "AlunoNome", aluno.Nome }
+            { "AlunoNome", aluno.Nome },
+            { "DisciplinaId", aluno.DisciplinaId },
+            { "DisciplinaNome", aluno.DisciplinaNome }
         });
     }
 }

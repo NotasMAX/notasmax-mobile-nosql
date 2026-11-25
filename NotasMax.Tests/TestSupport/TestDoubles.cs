@@ -102,6 +102,8 @@ public sealed class FakeSimuladoService : ISimuladoService
     public TurmasByAnoAndProfessor TurmasByProfessor { get; set; } = new();
     public GestaoNotasViewModel GestaoNotas { get; set; } = new();
     public GestaoNotasSimuladoViewModel GestaoNotasSimulado { get; set; } = new();
+    public Dictionary<string, GestaoNotasSimuladoViewModel> GradesBySimulation { get; } = new();
+    public HashSet<string> FailingMethods { get; } = new();
     public Exception? ExceptionToThrow { get; set; }
 
     public List<(string Method, string Id, string Token)> Calls { get; } = new();
@@ -124,12 +126,14 @@ public sealed class FakeSimuladoService : ISimuladoService
     public Task<SimuladoAlunoResponse> GetByAluno(string aluno_id, string token) => Return("GetByAluno", aluno_id, token, ByAluno);
     public Task<SimuladoProfessorResponse> GetByProfessor(string professor_id, string token) => Return("GetByProfessor", professor_id, token, ByProfessor);
     public Task<GestaoNotasViewModel> GetGestaoNotas() => Return("GetGestaoNotas", string.Empty, string.Empty, GestaoNotas);
-    public Task<GestaoNotasSimuladoViewModel> GetGestaoNotasSimulado(string simuladoId, string disciplinaId) => Return("GetGestaoNotasSimulado", $"{simuladoId}/{disciplinaId}", string.Empty, GestaoNotasSimulado);
+    public Task<GestaoNotasSimuladoViewModel> GetGestaoNotasSimulado(string simuladoId, string disciplinaId) => Return("GetGestaoNotasSimulado", $"{simuladoId}/{disciplinaId}", string.Empty, GradesBySimulation.GetValueOrDefault(simuladoId, GestaoNotasSimulado));
 
     private Task<T> Return<T>(string method, string id, string token, T response)
     {
         ThrowIfNeeded();
         Calls.Add((method, id, token));
+        if (FailingMethods.Contains(method) || FailingMethods.Contains($"{method}:{id}"))
+            throw new InvalidOperationException("synthetic failure");
         return Task.FromResult(response);
     }
 

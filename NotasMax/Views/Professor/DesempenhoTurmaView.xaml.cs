@@ -209,6 +209,11 @@ public partial class DesempenhoTurmaView : ContentPage
             return;
 
         var alunos = dadosDisciplinas.Alunos.OrderBy(a => a.Nome).ToList();
+        foreach (var aluno in alunos)
+        {
+            aluno.DisciplinaId = disciplina.Id;
+            aluno.DisciplinaNome = disciplina.MateriaNome;
+        }
         var simulados = dadosDisciplinas.SimuladosContainer.Simulados.OrderBy(s => s.NumeroSimulado).ToList();
         var distribuicaoNotas = dadosDisciplinas.Distribuicao;
         var media = dadosDisciplinas.SimuladosContainer.Media;

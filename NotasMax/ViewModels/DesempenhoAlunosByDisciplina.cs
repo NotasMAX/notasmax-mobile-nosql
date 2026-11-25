@@ -28,6 +28,10 @@ namespace NotasMax.ViewModels
             public string Nome { get; set; }
             [JsonPropertyName("media")]
             public double Media { get; set; }
+            [JsonIgnore]
+            public string DisciplinaId { get; set; } = string.Empty;
+            [JsonIgnore]
+            public string DisciplinaNome { get; set; } = string.Empty;
         }
 
         public class DesempenhoSimulado

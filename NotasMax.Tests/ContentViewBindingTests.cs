@@ -99,6 +99,8 @@ public class ContentViewBindingTests
         Assert.Equal("Simulado 3", view.GetFieldValue<Label>("label_nome_simulado").Text);
         Assert.Equal("7,25", view.GetFieldValue<Label>("label_valor_nota").Text);
         Assert.Contains("2026", view.GetFieldValue<Label>("label_data").Text);
+        view.BindingContext = new NotaSimulado { Numero = "3", Bimestre = 2, Nota = 7.25, Data = new DateTime(2026, 6, 9) };
+        Assert.Equal("Simulado 3 - 2º Bimestre", view.GetFieldValue<Label>("label_nome_simulado").Text);
     }
 
     [Fact]

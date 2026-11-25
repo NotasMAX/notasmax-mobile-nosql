@@ -92,11 +92,16 @@ public partial class HomeAlunoView : ContentPage, IValueConverter
     // Ir para tela de desempnho de uma materia 
     private async void TapGestureRecognizer_VerMateria(object sender, TappedEventArgs e)
     {
-        if (e.Parameter is string materiaId)
+        if (e.Parameter is string materiaId && !string.IsNullOrWhiteSpace(materiaId))
         {
-            // Necessario fazer rota para ir na tela "ExibirMateriaView", 
-            //await Shell.Current.GoToAsync("//aluno/perfil/perfilaluno");
-            await DisplayAlertAsync("OPS", "Falta completar", "ok");
+            var materia = _simulados.MediaPorMateria
+                .FirstOrDefault(m => m.MateriaId == materiaId);
+
+            if (materia is null)
+                return;
+
+            await Shell.Current.GoToAsync(
+                $"Materia?materiaId={Uri.EscapeDataString(materiaId)}&nome={Uri.EscapeDataString(materia.Materia)}");
         }
     }
 

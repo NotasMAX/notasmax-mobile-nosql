@@ -19,6 +19,10 @@ public class MediaTurmaAlunos
 public class NotaSimulado
 {
     public string? Numero { get; set; }
+    public int? Bimestre { get; set; }
+    public string IdentificacaoGrafico => Bimestre is > 0
+        ? $"{Bimestre}ºB/S{Numero}"
+        : $"S{Numero} ({Data:dd/MM})";
     public double Nota { get; set; }
     public DateTime Data { get; set; }
 }
