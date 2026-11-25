@@ -26,14 +26,15 @@
                            Style="{StaticResource LabelTitle}"
                            Text="Aluno"/>
                     <Label Style="{StaticResource LabelDetails}"
-                           Text="Média geral"/>
+                           x:Name="label_contexto_disciplina"
+                           Text="Média da disciplina"/>
                 </VerticalStackLayout>
             </HorizontalStackLayout>
             
             <VerticalStackLayout>
                 <Border Style="{StaticResource BorderShadow}" Background="{StaticResource GradientBluePrimary}">
                     <VerticalStackLayout Style="{StaticResource VerStackInsight}">
-                        <Label Text="Média do aluno"
+                        <Label Text="Média na disciplina"
                                Opacity="0.8"
                                FontFamily="Inter"
                                HorizontalOptions="Center"

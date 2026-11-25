@@ -119,7 +119,20 @@ public sealed class FakeSimuladoService : ISimuladoService
     public Task<SimuladoAlunoResponse> GetByAluno(string aluno_id, string token) => Return("GetByAluno", aluno_id, token, ByAluno);
     public Task<SimuladoProfessorResponse> GetByProfessor(string professor_id, string token) => Return("GetByProfessor", professor_id, token, ByProfessor);
     public Task<GestaoNotasViewModel> GetGestaoNotas() => Return("GetGestaoNotas", string.Empty, string.Empty, GestaoNotas);
-    public Task<GestaoNotasSimuladoViewModel> GetGestaoNotasSimulado(string simuladoId, string disciplinaId) => Return("GetGestaoNotasSimulado", $"{simuladoId}/{disciplinaId}", string.Empty, GestaoNotasSimulado);
+    public Dictionary<string, GestaoNotasSimuladoViewModel> GradesBySimulation { get; } = new();
+    public HashSet<string> FailingGradeQueries { get; } = new();
+
+    public Task<GestaoNotasSimuladoViewModel> GetGestaoNotasSimulado(string simuladoId, string disciplinaId)
+    {
+        var key = $"{simuladoId}/{disciplinaId}";
+        if (FailingGradeQueries.Contains(key))
+        {
+            Calls.Add(("GetGestaoNotasSimulado", key, string.Empty));
+            throw new InvalidOperationException("synthetic grade failure");
+        }
+        return Return("GetGestaoNotasSimulado", key, string.Empty,
+            GradesBySimulation.GetValueOrDefault(key, GestaoNotasSimulado));
+    }
 
     private Task<T> Return<T>(string method, string id, string token, T response)
     {

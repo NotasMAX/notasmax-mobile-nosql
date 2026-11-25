@@ -111,6 +111,11 @@ public class CalendarAndClassPerformanceTests
         Assert.Equal("9,00", view.GetFieldValue<Label>("label_maior_nota").Text);
         Assert.Equal("Ana Maria", view.GetFieldValue<Label>("label_maior_aluno").Text);
         Assert.Equal(2, view.GetFieldValue<VerticalStackLayout>("layout_alunos").Children.Count);
+        Assert.All(response.Alunos, aluno =>
+        {
+            Assert.Equal("subject-2", aluno.DisciplinaId);
+            Assert.Equal("Matemática", aluno.DisciplinaNome);
+        });
 
         view.InvokeMember("DefinirDestaqueDistribuicao", response.Distribuicao);
         var doughnut = view.GetFieldValue<object>("doughnut_chart");

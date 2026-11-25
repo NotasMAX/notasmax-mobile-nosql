@@ -91,13 +91,13 @@ public class UtilityTests
     }
 
     [Fact]
-    public void GlobalSettingsBuildsItsLocalApiEndpoints()
+    public void GlobalSettingsBuildsApiEndpointsFromDefaultEndpoint()
     {
         var settings = new GlobalSettings();
 
-        Assert.Equal("http://localhost:5000/NotasMax/Auth/login", settings.UsuarioLoginAuthEndpoint);
-        Assert.Equal("http://localhost:5000/NotasMax/Simulados", settings.SimuladoEndpoint);
-        Assert.Equal("http://localhost:5000/NotasMax/Auth/forgot-mobile", settings.ForgotPasswordEndpoint);
+        Assert.Equal($"{GlobalSettings.DefaultEndpoint}/Auth/login", settings.UsuarioLoginAuthEndpoint);
+        Assert.Equal($"{GlobalSettings.DefaultEndpoint}/Simulados", settings.SimuladoEndpoint);
+        Assert.Equal($"{GlobalSettings.DefaultEndpoint}/Auth/forgot-mobile", settings.ForgotPasswordEndpoint);
     }
 
     [Fact]

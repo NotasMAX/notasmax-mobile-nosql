@@ -46,31 +46,74 @@ public class StudentAndTeacherResultTests
     }
 
     [Fact]
-    // Baseline only: the displayed simple average is not an approved academic calculation rule.
-    [Trait("Category", "Baseline non-normative")]
-    public async Task TeacherCanViewAStudentSimulationSummary()
+    public async Task TeacherSeesOnlySelectedDisciplineGradesAndApiAverage()
     {
         using var culture = new TestCultureScope("pt-BR");
-        var simulations = new FakeSimuladoService
+        var date = new DateTime(2026, 3, 1);
+        var service = new FakeSimuladoService
         {
-            SimuladosAluno = new DesempenhoAlunoBySimulados
+            DesempenhoByDisciplina = new DesempenhoAlunoByDisciplina
             {
-                Simulados =
-                [
-                    new DesempenhoAlunoBySimulados.Simulado { Id = "sim-2", Numero = 2, Media = 9, DataRealizacao = new DateTime(2026, 5, 1) },
-                    new DesempenhoAlunoBySimulados.Simulado { Id = "sim-1", Numero = 1, Media = 7, DataRealizacao = new DateTime(2026, 3, 1) }
-                ]
+                Alunos = [new() { Id = "other", Media = 9 }, new() { Id = "student-5", Media = 4.47 }],
+                SimuladosContainer = new()
+                {
+                    Simulados = [new() { SimuladoId = "sim-2", NumeroSimulado = 2 },
+                        new() { SimuladoId = "sim-1", NumeroSimulado = 1 },
+                        new() { SimuladoId = "sim-1", NumeroSimulado = 1 },
+                        new() { SimuladoId = "", NumeroSimulado = 3 },
+                        new() { SimuladoId = "missing", NumeroSimulado = 4 },
+                        new() { SimuladoId = "failure", NumeroSimulado = 5 }]
+                }
+            },
+            SimuladosAluno = new()
+            {
+                Simulados = [new() { Id = "sim-1", Media = 9, DataRealizacao = date },
+                    new() { Id = "unrelated", Media = 10 }]
             }
         };
-        var view = new DesempenhoAlunoView(simulations) { AlunoId = "student-5", AlunoNome = "Ana Maria" };
+        service.GradesBySimulation["sim-1/history"] = new() { Alunos = [new() { Id = "other", Nota = 10 }, new() { Id = "student-5", Nota = 4 }] };
+        service.GradesBySimulation["sim-2/history"] = new() { Alunos = [new() { Id = "student-5", Nota = 5 }] };
+        service.FailingGradeQueries.Add("failure/history");
+        var view = new DesempenhoAlunoView(service)
+        {
+            AlunoId = "student-5", AlunoNome = "Ana Maria", DisciplinaId = "history", DisciplinaNome = "História"
+        };
 
         await InvokeTask(view, "CarregarDados");
 
         Assert.Equal("Ana Maria", view.GetFieldValue<Label>("label_nome_aluno").Text);
         Assert.Equal("AM", view.GetFieldValue<Label>("label_iniciais").Text);
-        Assert.Equal("8,00", view.GetFieldValue<Label>("label_valor_media").Text);
-        Assert.Equal("GetSimuladosByAluno", Assert.Single(simulations.Calls).Method);
-        Assert.Equal("student-5", simulations.Calls[0].Id);
+        Assert.Equal("Disciplina: História", view.GetFieldValue<Label>("label_contexto_disciplina").Text);
+        Assert.Equal("4,47", view.GetFieldValue<Label>("label_valor_media").Text);
+        var notes = Assert.IsAssignableFrom<IEnumerable<NotaSimulado>>(BindableLayout.GetItemsSource(view.GetFieldValue<VerticalStackLayout>("layout_simulados")));
+        Assert.Collection(notes,
+            note => { Assert.Equal("1", note.Numero); Assert.Equal(4d, note.Nota); Assert.Equal(date, note.Data); },
+            note => { Assert.Equal("2", note.Numero); Assert.Equal(5d, note.Nota); Assert.Equal(default(DateTime), note.Data); });
+        Assert.Same(notes, view.GetFieldValue<Syncfusion.Maui.Toolkit.Charts.SplineSeries>("line_chart").ItemsSource);
+        Assert.Equal("history", service.Calls[0].Id);
+        Assert.Equal("student-5", service.Calls[1].Id);
+        Assert.Equal(new[] { "sim-1/history", "sim-2/history", "missing/history", "failure/history" },
+            service.Calls.Where(c => c.Method == "GetGestaoNotasSimulado").Select(c => c.Id));
+    }
+
+    [Fact]
+    public async Task TeacherStudentPerformanceWithNoMatchingStudentShowsNoAverage()
+    {
+        var service = new FakeSimuladoService();
+        var view = new DesempenhoAlunoView(service) { AlunoId = "missing", DisciplinaId = "history" };
+        await InvokeTask(view, "CarregarDados");
+        Assert.Equal("--", view.GetFieldValue<Label>("label_valor_media").Text);
+        Assert.Empty(Assert.IsAssignableFrom<IEnumerable<NotaSimulado>>(BindableLayout.GetItemsSource(view.GetFieldValue<VerticalStackLayout>("layout_simulados"))));
+    }
+
+    [Fact]
+    public async Task TeacherStudentPerformanceHandlesUnavailableService()
+    {
+        var service = new FakeSimuladoService { ExceptionToThrow = new InvalidOperationException("synthetic failure") };
+        var view = new DesempenhoAlunoView(service) { AlunoId = "student", AlunoNome = "Ana Maria", DisciplinaId = "history" };
+        await InvokeTask(view, "CarregarDados");
+        Assert.Equal("Ana Maria", view.GetFieldValue<Label>("label_nome_aluno").Text);
+        Assert.Empty(service.Calls);
     }
 
     [Fact]
@@ -106,7 +149,7 @@ public class StudentAndTeacherResultTests
     }
 
     [Fact]
-    public async Task TeacherStudentPerformanceReturnsForAnEmptySimulationList()
+    public async Task TeacherStudentPerformanceDoesNotFetchWithoutDiscipline()
     {
         var service = new FakeSimuladoService { SimuladosAluno = new DesempenhoAlunoBySimulados() };
         var view = new DesempenhoAlunoView(service) { AlunoId = "student-empty", AlunoNome = null! };
@@ -115,7 +158,9 @@ public class StudentAndTeacherResultTests
 
         Assert.Equal("Aluno", view.GetFieldValue<Label>("label_nome_aluno").Text);
         Assert.Equal("AA", view.GetFieldValue<Label>("label_iniciais").Text);
-        Assert.Equal("0.00", view.GetFieldValue<Label>("label_valor_media").Text);
+        Assert.Equal("--", view.GetFieldValue<Label>("label_valor_media").Text);
+        Assert.Empty(service.Calls);
+        Assert.Empty(Assert.IsAssignableFrom<IEnumerable<NotaSimulado>>(BindableLayout.GetItemsSource(view.GetFieldValue<VerticalStackLayout>("layout_simulados"))));
     }
 
     [Fact]

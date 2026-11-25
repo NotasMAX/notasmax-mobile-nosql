@@ -6,7 +6,7 @@
 #if ANDROID
         public const string DefaultEndpoint = "http://10.0.2.2:5000/NotasMax";
 #else
-        public const string DefaultEndpoint = "http://localhost:5000/NotasMax";
+        public const string DefaultEndpoint = "https://nm-aca-check-app.wittyisland-fa59bd74.chilecentral.azurecontainerapps.io/NotasMax";
 #endif
 
         // Define o endpoint específico para autenticação de usuários, que é construído a partir do endpoint padrão

@@ -74,6 +74,17 @@ public class PageLogicTests
     }
 
     [Fact]
+    public void HomeAlunoIgnoresInvalidOrUnknownSubjectSelections()
+    {
+        var navigation = new FakeNavigationService();
+        var view = new HomeAlunoView(navigation, new FakeSettingsService(), new FakeUsuarioService(), new FakeSimuladoService());
+        view.InvokeMember("TapGestureRecognizer_VerMateria", null!, new TappedEventArgs(null));
+        view.InvokeMember("TapGestureRecognizer_VerMateria", null!, new TappedEventArgs(" "));
+        view.InvokeMember("TapGestureRecognizer_VerMateria", null!, new TappedEventArgs("unknown"));
+        Assert.Empty(navigation.Navigations);
+    }
+
+    [Fact]
     // Baseline only: this simple average is not an approved academic calculation rule.
     [Trait("Category", "Baseline non-normative")]
     public void ExibirMateriaCalculatesMeanFromMatchingSimulationResults()
