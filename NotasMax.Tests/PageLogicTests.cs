@@ -67,6 +67,9 @@ public class PageLogicTests
         view.InvokeMember("OnAppearing");
         view.InvokeMember("Picker_Bimestre_Changed", picker, EventArgs.Empty);
 
+        view.InvokeMember("TapGestureRecognizer_VerMateria", null!, new TappedEventArgs(null));
+        view.InvokeMember("TapGestureRecognizer_VerMateria", null!, new TappedEventArgs(" "));
+        view.InvokeMember("TapGestureRecognizer_VerMateria", null!, new TappedEventArgs("unknown"));
         Assert.Empty((IEnumerable<string>)picker.ItemsSource);
         Assert.InRange((double)view.Convert(0.72d, typeof(double), null!, CultureInfo.InvariantCulture), 7.1999d, 7.2001d);
         Assert.Equal(0, view.Convert("0.72", typeof(double), null!, CultureInfo.InvariantCulture));

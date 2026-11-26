@@ -2,14 +2,9 @@
 {
     public class GlobalSettings // Classe para armazenar configurações globais da aplicação, como endpoints de API
     {
-        // Define o endpoint padrão para a API, que pode ser usado em toda a aplicação para fazer requisições     
-#if DEBUG
-    public const string DefaultEndpoint = "http://localhost:5000/NotasMax";
-#elif ANDROID
-    public const string DefaultEndpoint = "http://10.0.2.2:5000/NotasMax";
-#else
-    public const string DefaultEndpoint = "https://nm-aca-check-app.wittyisland-fa59bd74.chilecentral.azurecontainerapps.io/NotasMax";
-#endif
+
+        // Endpoint HTTPS do ambiente de testes, servido pela API e pelo frontend na mesma origem.
+        public const string DefaultEndpoint = "https://nm-aca-check-app.wittyisland-fa59bd74.chilecentral.azurecontainerapps.io/NotasMax";
 
         // Define o endpoint específico para autenticação de usuários, que é construído a partir do endpoint padrão
         public string UsuarioLoginAuthEndpoint { get; set; }

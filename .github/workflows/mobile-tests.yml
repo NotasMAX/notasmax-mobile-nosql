@@ -33,7 +33,9 @@ jobs:
         run: dotnet workload install maui
 
       - name: Restore locked test dependencies
+
         run: dotnet restore .\NotasMax.Tests\NotasMax.Tests.csproj --locked-mode -p:TargetFramework=net10.0 -p:TargetFrameworks=net10.0
+
 
       - name: Run mobile tests and 80% line coverage gate
         run: >-

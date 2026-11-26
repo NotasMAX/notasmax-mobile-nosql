@@ -8,8 +8,12 @@ public static class ViewTestExtensions
 
     public static T GetFieldValue<T>(this object instance, string fieldName)
     {
-        var field = instance.GetType().GetField(fieldName, InstanceMembers)
-            ?? throw new MissingFieldException(instance.GetType().FullName, fieldName);
+        FieldInfo? field = null;
+        for (var type = instance.GetType(); type is not null && field is null; type = type.BaseType)
+            field = type.GetField(fieldName, InstanceMembers | BindingFlags.DeclaredOnly);
+
+        if (field is null)
+            throw new MissingFieldException(instance.GetType().FullName, fieldName);
         return (T)field.GetValue(instance)!;
     }
 

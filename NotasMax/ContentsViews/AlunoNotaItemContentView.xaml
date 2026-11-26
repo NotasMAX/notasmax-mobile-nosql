@@ -11,7 +11,7 @@
                      WidthRequest="45"
                      HeightRequest="45"
                      StrokeShape="Ellipse 40, 40"
-                      Padding="10"
+                      Padding="0"
                       BackgroundColor="#e7ecf4"
                       Stroke="Transparent">
                         <Label x:Name="label_iniciais_aluno"
@@ -19,7 +19,10 @@
                             TextTransform="Uppercase"
                             FontFamily="RobotoMono"
                             FontAttributes="Bold"
-                            FontSize="18"
+                            FontSize="16"
+                            LineBreakMode="NoWrap"
+                            HorizontalOptions="Fill"
+                            VerticalOptions="Fill"
                             VerticalTextAlignment="Center"
                             HorizontalTextAlignment="Center"
                             TextColor="{StaticResource Blue700}"/>
