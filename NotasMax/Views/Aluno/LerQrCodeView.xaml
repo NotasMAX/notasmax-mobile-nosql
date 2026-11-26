@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:scanner="clr-namespace:BarcodeScanning;assembly=BarcodeScanning.Native.Maui"
+             xmlns:vm="clr-namespace:NotasMax.ViewModels"
+             x:Class="NotasMax.Views.Aluno.LerQrCodeView"
+             x:DataType="vm:LerQrCodeViewModel"
+             Title="Ler QR Code"
+             BackgroundColor="{StaticResource BackgroundColor}">
+
+    <Grid Padding="24" RowDefinitions="Auto,*" RowSpacing="20">
+        <Label Grid.Row="0"
+               Text="Ler QR Code"
+               Style="{StaticResource LabelTitle}"
+               TextColor="{StaticResource PrimaryDarkText}"
+               HorizontalTextAlignment="Center" />
+
+        <Grid Grid.Row="1">
+            <scanner:CameraView x:Name="QrCamera"
+                                IsVisible="{Binding IsCameraVisivel}"
+                                CameraEnabled="{Binding CameraAtiva}"
+                                PauseScanning="{Binding LeituraPausada}"
+                                BarcodeSymbologies="QRCode"
+                                VibrationOnDetected="False"
+                                OnDetectionFinished="Camera_OnDetectionFinished" />
+
+            <VerticalStackLayout IsVisible="{Binding IsSolicitandoPermissao}"
+                                 Spacing="16"
+                                 HorizontalOptions="Center"
+                                 VerticalOptions="Center">
+                <ActivityIndicator IsRunning="{Binding IsSolicitandoPermissao}"
+                                   Color="{StaticResource Blue600}" />
+                <Label Text="{Binding Mensagem}"
+                       Style="{StaticResource LabelDetails}"
+                       HorizontalTextAlignment="Center" />
+            </VerticalStackLayout>
+
+            <VerticalStackLayout IsVisible="{Binding IsPermissaoNegada}"
+                                 Spacing="16"
+                                 HorizontalOptions="Center"
+                                 VerticalOptions="Center">
+                <Label Text="{Binding Mensagem}"
+                       Style="{StaticResource LabelDetails}"
+                       HorizontalTextAlignment="Center" />
+                <Button Text="Abrir configurações"
+                        Command="{Binding AbrirConfiguracoesCommand}"
+                        Style="{StaticResource BtnGradientPrimary}"
+                        SemanticProperties.Hint="Abre as configurações do aplicativo para permitir o uso da câmera." />
+                <Button Text="Voltar"
+                        Command="{Binding VoltarCommand}"
+                        SemanticProperties.Hint="Volta para a tela anterior." />
+            </VerticalStackLayout>
+
+            <VerticalStackLayout IsVisible="{Binding IsProcessando}"
+                                 Spacing="16"
+                                 HorizontalOptions="Center"
+                                 VerticalOptions="Center">
+                <ActivityIndicator IsRunning="True"
+                                   Color="{StaticResource Blue600}" />
+                <Label Text="Registrando presença..."
+                       Style="{StaticResource LabelTitle}"
+                       TextColor="{StaticResource PrimaryDarkText}"
+                       HorizontalTextAlignment="Center" />
+            </VerticalStackLayout>
+
+            <VerticalStackLayout IsVisible="{Binding IsSucesso}"
+                                 Spacing="16"
+                                 HorizontalOptions="Center"
+                                 VerticalOptions="Center">
+                <Border StrokeThickness="0" Padding="20" Background="{StaticResource GreenPrimary}">
+                    <Border.StrokeShape>
+                        <RoundRectangle CornerRadius="16" />
+                    </Border.StrokeShape>
+                    <VerticalStackLayout Spacing="8">
+                        <Label Text="Presença registrada!"
+                               FontFamily="SpaceGrotesk"
+                               FontSize="22"
+                               FontAttributes="Bold"
+                               TextColor="White"
+                               HorizontalTextAlignment="Center" />
+                        <Label Text="{Binding Mensagem}"
+                               FontFamily="Inter"
+                               FontSize="16"
+                               TextColor="White"
+                               HorizontalTextAlignment="Center" />
+                    </VerticalStackLayout>
+                </Border>
+                <Button Text="Concluir"
+                        Command="{Binding ConcluirCommand}"
+                        Style="{StaticResource BtnGradientPrimary}"
+                        SemanticProperties.Hint="Conclui o registro e volta ao perfil." />
+            </VerticalStackLayout>
+
+            <VerticalStackLayout IsVisible="{Binding IsAviso}"
+                                 Spacing="16"
+                                 HorizontalOptions="Center"
+                                 VerticalOptions="Center">
+                <Border StrokeThickness="0" Padding="20" Background="{StaticResource YellowPrimary}">
+                    <Border.StrokeShape>
+                        <RoundRectangle CornerRadius="16" />
+                    </Border.StrokeShape>
+                    <VerticalStackLayout Spacing="8">
+                        <Label Text="Presença já registrada"
+                               FontFamily="SpaceGrotesk"
+                               FontSize="22"
+                               FontAttributes="Bold"
+                               TextColor="{StaticResource PrimaryDarkText}"
+                               HorizontalTextAlignment="Center" />
+                        <Label Text="Você já registrou presença neste simulado."
+                               FontFamily="Inter"
+                               FontSize="16"
+                               TextColor="{StaticResource PrimaryDarkText}"
+                               HorizontalTextAlignment="Center" />
+                    </VerticalStackLayout>
+                </Border>
+                <Button Text="Voltar"
+                        Command="{Binding VoltarCommand}"
+                        SemanticProperties.Hint="Volta para a tela anterior." />
+            </VerticalStackLayout>
+
+            <VerticalStackLayout IsVisible="{Binding IsErro}"
+                                 Spacing="16"
+                                 HorizontalOptions="Center"
+                                 VerticalOptions="Center">
+                <Border StrokeThickness="0" Padding="20" Background="{StaticResource RedPrimary}">
+                    <Border.StrokeShape>
+                        <RoundRectangle CornerRadius="16" />
+                    </Border.StrokeShape>
+                    <Label Text="{Binding Mensagem}"
+                           FontFamily="Inter"
+                           FontSize="16"
+                           TextColor="White"
+                           HorizontalTextAlignment="Center" />
+                </Border>
+                <Button Text="Ler outro QR Code"
+                        IsVisible="{Binding PodeLerOutroQr}"
+                        Command="{Binding LerNovamenteCommand}"
+                        Style="{StaticResource BtnGradientPrimary}"
+                        SemanticProperties.Hint="Ativa a câmera para ler outro QR Code." />
+                <Button Text="Tentar novamente"
+                        IsVisible="{Binding PodeTentarNovamente}"
+                        Command="{Binding TentarNovamenteCommand}"
+                        Style="{StaticResource BtnGradientPrimary}"
+                        SemanticProperties.Hint="Tenta registrar a presença novamente." />
+                <Button Text="Voltar"
+                        Command="{Binding VoltarCommand}"
+                        SemanticProperties.Hint="Volta para a tela anterior." />
+            </VerticalStackLayout>
+
+            <Label IsVisible="{Binding IsCameraVisivel}"
+                   Text="{Binding Mensagem}"
+                   FontFamily="Inter"
+                   FontSize="16"
+                   TextColor="White"
+                   Background="{StaticResource Blue900}"
+                   Padding="16,12"
+                   HorizontalTextAlignment="Center"
+                   VerticalOptions="End" />
+        </Grid>
+    </Grid>
+</ContentPage>

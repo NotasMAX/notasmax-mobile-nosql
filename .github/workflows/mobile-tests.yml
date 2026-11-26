@@ -27,7 +27,6 @@ jobs:
           cache: true
           cache-dependency-path: |
             NotasMax.Tests/packages.lock.json
-            NotasMax/packages.lock.json
 
       - name: Install .NET MAUI workload
         run: dotnet workload install maui

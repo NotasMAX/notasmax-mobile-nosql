@@ -74,6 +74,27 @@ namespace NotasMax.Services.RequestProvider
             }
         }
         
+        public async Task<(System.Net.HttpStatusCode StatusCode, TResult? Data)> PostWithStatusAsync<TResult, TSend>(string uri, TSend data, string token = "")
+        {
+            var httpClient = GetOrCreateHttpClient(token);
+            using var body = new StringContent(JsonSerializer.Serialize(data));
+            body.Headers.ContentType = new MediaTypeHeaderValue("application/json");
+
+            using var response = await httpClient.PostAsync(uri, body).ConfigureAwait(false);
+            var content = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+            TResult? result = default;
+
+            try
+            {
+                result = JsonSerializer.Deserialize<TResult>(content);
+            }
+            catch (JsonException)
+            {
+            }
+
+            return (response.StatusCode, result);
+        }
+
         public async Task<TResult> GetAsync<TResult>(string uri, string token = "")
         {
             var httpClient = GetOrCreateHttpClient(token);

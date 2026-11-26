@@ -67,6 +67,35 @@ public class RequestProviderTests
     }
 
     [Fact]
+    public async Task PostWithStatusAsyncPreservesStatusAndDeserializesErrorBody()
+    {
+        using var handler = new StubHttpMessageHandler(_ => JsonResponse(HttpStatusCode.BadRequest, "{\"Value\":\"invalid\"}"));
+        using var client = new HttpClient(handler);
+        var provider = new RequestProvider(() => client);
+        var payload = new TestPayload { Name = "synthetic" };
+
+        var (statusCode, data) = await provider.PostWithStatusAsync<TestResponse, TestPayload>("https://unit.test/write", payload, "synthetic-token");
+
+        Assert.Equal(HttpStatusCode.BadRequest, statusCode);
+        Assert.Equal("invalid", data?.Value);
+        Assert.Equal("{\"Name\":\"synthetic\"}", handler.LastBody);
+        Assert.Equal("Bearer synthetic-token", handler.LastAuthorization);
+    }
+
+    [Fact]
+    public async Task PostWithStatusAsyncPreservesStatusWhenBodyIsNotJson()
+    {
+        using var handler = new StubHttpMessageHandler(_ => JsonResponse(HttpStatusCode.Created, "not-json"));
+        using var client = new HttpClient(handler);
+        var provider = new RequestProvider(() => client);
+
+        var (statusCode, data) = await provider.PostWithStatusAsync<TestResponse, TestPayload>("https://unit.test/write", new TestPayload());
+
+        Assert.Equal(HttpStatusCode.Created, statusCode);
+        Assert.Null(data);
+    }
+
+    [Fact]
     public async Task PostAsyncThrowsApiExceptionWhenAnErrorBodyIsNotJson()
     {
         using var handler = new StubHttpMessageHandler(_ => JsonResponse(HttpStatusCode.BadRequest, "not-json"));
